@@ -1,0 +1,159 @@
+/* 画面用スタイル（印刷されない部分）。試作HTMLのものを移植し、ロスター・通知を追加 */
+
+:root{
+  --ink:#1b2027; --muted:#6b727c; --line:#d7dce2;
+  --panel:#fff; --app-bg:#e9edf1;
+  --accent:#274060; --accent-2:#3d5a80; --accent-soft:#eaf0f6;
+  --danger:#9a3b3b; --danger-soft:#fbeeee; --warn-soft:#fff6e0; --warn-line:#e8c872;
+  --sheet-rule:#141414;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  color:var(--ink);background:var(--app-bg);-webkit-font-smoothing:antialiased}
+
+.chrome{position:sticky;top:0;z-index:20;background:rgba(233,237,241,.95);backdrop-filter:blur(8px)}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:11px 18px;border-bottom:1px solid var(--line)}
+.brand{display:flex;flex-direction:column;line-height:1.15;margin-right:auto}
+.brand b{font-size:15px;letter-spacing:.02em}
+.brand span{font-size:11px;color:var(--muted)}
+.btn{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--accent);color:var(--accent);
+  background:#fff;border-radius:8px;padding:9px 14px;cursor:pointer;transition:.15s;min-height:40px}
+.btn:hover{background:var(--accent-soft)}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-2)}
+.btn.ghost{border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{background:#fff;color:var(--ink)}
+.btn.danger{border-color:var(--line);color:var(--danger)}
+.btn.danger:hover{background:var(--danger-soft)}
+.btn:disabled{opacity:.5;cursor:default}
+
+.menu{position:relative}
+.menu > summary{list-style:none}
+.menu > summary::-webkit-details-marker{display:none}
+.menu .menu-body{position:absolute;right:0;top:calc(100% + 6px);z-index:30;display:flex;flex-direction:column;gap:6px;
+  min-width:230px;padding:10px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(20,30,50,.14)}
+.menu .menu-body .btn{text-align:left}
+.menu .menu-body small{font-size:11px;color:var(--muted);padding:2px 4px 0}
+
+.rosterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 18px;border-bottom:1px solid var(--line);background:#f4f6f9}
+.rosterbar label{font-size:12px;font-weight:700;color:var(--muted)}
+.rosterbar select{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;min-height:40px;min-width:240px;max-width:100%}
+.rosterbar .count{font-size:12px;color:var(--muted)}
+
+.banner{display:flex;align-items:center;gap:10px;padding:9px 18px;font-size:13px;border-bottom:1px solid var(--warn-line);background:var(--warn-soft)}
+.banner.error{background:var(--danger-soft);border-color:#e3b4b4;color:var(--danger)}
+.banner .btn{min-height:32px;padding:5px 10px;margin-left:auto}
+
+.tabs{display:flex;gap:6px;padding:10px 18px 0;background:var(--app-bg);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);border-bottom:none;
+  background:#eef2f6;color:var(--muted);padding:9px 15px;border-radius:9px 9px 0 0;cursor:pointer;min-height:40px}
+.tab.active{background:#fff;color:var(--accent);border-color:var(--accent);border-bottom:1px solid #fff;margin-bottom:-1px}
+
+.layout{display:grid;grid-template-columns:minmax(340px,430px) 1fr;align-items:start}
+@media (max-width:1020px){.layout{grid-template-columns:1fr}}
+
+.panel{padding:16px 18px 70px;border-right:1px solid var(--line);min-height:calc(100vh - 160px);background:var(--panel)}
+.panel h2{font-size:11px;letter-spacing:.14em;color:var(--muted);margin:2px 0 12px;font-weight:700}
+.panel h2.sec{margin-top:20px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label{font-size:12px;color:var(--muted);font-weight:600}
+.field input,.field select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);min-height:42px}
+.field input:focus,.field select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent-2)}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.note.warn{color:var(--danger);background:var(--danger-soft);border-color:#e3b4b4}
+.note{font-size:12px;color:var(--muted);line-height:1.7;background:#f5f8fb;border:1px solid var(--line);border-radius:8px;padding:11px 12px;margin-bottom:14px}
+
+details.settings{margin:6px 0 4px;border:1px solid var(--line);border-radius:9px;background:#f7f9fb}
+details.settings summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--accent);padding:11px 12px;list-style:none}
+details.settings summary::-webkit-details-marker{display:none}
+details.settings summary::before{content:"▸ ";color:var(--muted)}
+details.settings[open] summary::before{content:"▾ "}
+details.settings .body{padding:0 12px 12px}
+details.settings .shared{font-size:11px;color:var(--muted);margin:0 0 10px}
+
+.rows{margin-top:4px;display:flex;flex-direction:column;gap:9px}
+.rowcard{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fbfcfd;position:relative}
+.rowcard.invalid{border-color:#d9a5a5;background:#fffafa}
+.rowcard .no{position:absolute;top:9px;right:11px;font-size:11px;color:var(--muted);font-weight:700}
+.rowcard .rm{position:absolute;top:5px;right:30px;border:none;background:none;color:var(--danger);cursor:pointer;font-size:18px;line-height:1;padding:4px}
+.rowcard .rowwarn{font-size:11px;color:var(--danger);margin-top:8px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;align-items:end}
+.cap{font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px}
+.date-in,.time-in{display:flex;align-items:center;gap:5px}
+.date-in input{width:56px;text-align:center}
+.time-in input{flex:1;min-width:0}
+.rowcard select,.rowcard input{font:inherit;padding:9px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;min-height:42px}
+.type-sel,.subj{width:100%}
+.full{grid-column:1/-1}
+.cardfoot{margin-top:9px;display:flex;justify-content:flex-end}
+.dup{font:inherit;font-size:12px;font-weight:600;border:1px dashed var(--accent-2);color:var(--accent-2);
+  background:#fff;border-radius:7px;padding:6px 10px;cursor:pointer}
+.dup:hover{background:var(--accent-soft)}
+.copybar{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
+.copybar .tally{font-size:12px;color:var(--muted);margin-left:auto}
+.addrow{margin-top:12px}
+
+.cblock{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fbfcfd;margin-bottom:9px}
+.cblock .subjrow{margin-bottom:8px}
+.cnts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.cnts .c label{font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:3px;text-align:center}
+.cnts .c input{width:100%;text-align:center;font:inherit;padding:9px 4px;border:1px solid var(--line);border-radius:6px;min-height:42px}
+.cblock input.csubj{width:100%;font:inherit;padding:9px 8px;border:1px solid var(--line);border-radius:6px;min-height:42px}
+
+.previewwrap{padding:24px;display:flex;justify-content:center;overflow:auto}
+.hint{font-size:11px;color:var(--muted);text-align:center;margin-bottom:11px}
+
+@media (max-width:1020px){
+  .previewwrap{padding:12px}
+  .panel{min-height:auto;border-right:none;border-bottom:1px solid var(--line)}
+}
+@media (max-width:1020px){.chrome{position:static}}
+.hint-inline{font-size:11px;color:var(--muted)}
+
+/* 生徒一覧 */
+.list-view{padding:18px;max-width:1100px;margin:0 auto}
+.list-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.list-tools label{font-size:12px;font-weight:700;color:var(--muted)}
+.list-tools select{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;min-height:40px;min-width:180px}
+.list-tools .btn{margin-left:auto}
+.muted{color:var(--muted)}
+.warn-text{color:var(--danger);font-weight:600}
+.ok-text{color:#2f6b3a;font-weight:600}
+.table-scroll{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:10px}
+table.students{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}
+table.students th,table.students td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.students th{font-size:11px;color:var(--muted);font-weight:700;background:#f7f9fb}
+table.students tr:last-child td{border-bottom:none}
+table.students tr.has-warn td{background:#fffafa}
+table.students .chk{width:36px}
+table.students input[type=checkbox]{width:18px;height:18px}
+.linkbtn{font:inherit;font-weight:700;color:var(--accent);background:none;border:none;padding:0;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:3px}
+.warns summary{cursor:pointer}
+.warns ul{margin:6px 0 0;padding-left:16px;font-size:12px;color:var(--danger)}
+.empty-row{text-align:center !important;padding:24px !important}
+.list-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:16px}
+.list-actions .group{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}
+.list-actions .group b{width:100%;font-size:13px}
+.list-actions .group small{width:100%;font-size:11px;color:var(--muted);line-height:1.6}
+.list-actions .group small b{width:auto;font-size:inherit}
+
+/* アプリ内ダイアログ */
+.dialog-backdrop{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,30,50,.35)}
+.dialog{width:min(480px,100%);max-height:80vh;overflow:auto;background:#fff;border-radius:12px;padding:20px;box-shadow:0 12px 40px rgba(20,30,50,.25)}
+.dialog-msg{margin:0 0 18px;font-size:14px;line-height:1.7;white-space:pre-wrap}
+.dialog-actions{display:flex;justify-content:flex-end;gap:8px}
+.btn.danger-solid{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.danger-solid:hover{background:#7f2f2f}
+.month-sel{font:inherit;padding:9px 8px;border:1px solid var(--line);border-radius:7px;background:#fff;min-height:42px;min-width:72px}
+
+/* スマホ幅ではプレビューを畳める（印刷には影響しない：screen のみ） */
+.preview-toggle{display:none}
+@media screen and (max-width:1020px){
+  .previewwrap{flex-direction:column;align-items:stretch}
+  .preview-toggle{display:block;width:100%;margin-bottom:12px}
+  .previewwrap.collapsed .preview-body{display:none}
+  .list-view{padding:12px}
+  .topbar{padding:10px 12px}
+  .brand span{display:none}
+}

@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>個別指導部 帳票（回数報告書・実施報告書・授業予定）</title>
+<style>
+  :root{
+    --ink:#1b2027; --muted:#6b727c; --line:#d7dce2;
+    --panel:#fff; --app-bg:#e9edf1;
+    --accent:#274060; --accent-2:#3d5a80; --accent-soft:#eaf0f6;
+    --danger:#9a3b3b; --sheet-rule:#141414;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+    color:var(--ink);background:var(--app-bg);-webkit-font-smoothing:antialiased}
+
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:11px 18px;background:rgba(233,237,241,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .brand{display:flex;flex-direction:column;line-height:1.15;margin-right:auto}
+  .brand b{font-size:15px;letter-spacing:.02em}
+  .brand span{font-size:11px;color:var(--muted)}
+  .btn{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--accent);color:var(--accent);
+    background:#fff;border-radius:8px;padding:9px 14px;cursor:pointer;transition:.15s;min-height:40px}
+  .btn:hover{background:var(--accent-soft)}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-2)}
+  .btn.ghost{border-color:var(--line);color:var(--muted)}
+  .btn.ghost:hover{background:#fff;color:var(--ink)}
+
+  .tabs{position:sticky;top:57px;z-index:19;display:flex;gap:6px;padding:10px 18px 0;background:var(--app-bg);
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);border-bottom:none;
+    background:#eef2f6;color:var(--muted);padding:9px 15px;border-radius:9px 9px 0 0;cursor:pointer;min-height:40px}
+  .tab.active{background:#fff;color:var(--accent);border-color:var(--accent);border-bottom:1px solid #fff;margin-bottom:-1px}
+
+  .layout{display:grid;grid-template-columns:minmax(340px,430px) 1fr;align-items:start}
+  @media (max-width:1020px){.layout{grid-template-columns:1fr}}
+
+  .panel{padding:16px 18px 70px;border-right:1px solid var(--line);min-height:calc(100vh - 108px);background:var(--panel)}
+  .panel h2{font-size:11px;letter-spacing:.14em;color:var(--muted);margin:2px 0 12px;font-weight:700}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+  .field label{font-size:12px;color:var(--muted);font-weight:600}
+  .field input,.field select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);min-height:42px}
+  .field input:focus,.field select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent-2)}
+  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .note{font-size:12px;color:var(--muted);line-height:1.7;background:#f5f8fb;border:1px solid var(--line);border-radius:8px;padding:11px 12px;margin-bottom:14px}
+
+  details.settings{margin:6px 0 4px;border:1px solid var(--line);border-radius:9px;background:#f7f9fb}
+  details.settings summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--accent);padding:11px 12px;list-style:none}
+  details.settings summary::-webkit-details-marker{display:none}
+  details.settings summary::before{content:"▸ ";color:var(--muted)}
+  details.settings[open] summary::before{content:"▾ "}
+  details.settings .body{padding:0 12px 12px}
+
+  .rows{margin-top:4px;display:flex;flex-direction:column;gap:9px}
+  .rowcard{border:1px solid var(--line);border-radius:10px;padding:10px 10px 10px;background:#fbfcfd;position:relative}
+  .rowcard .no{position:absolute;top:9px;right:11px;font-size:11px;color:var(--muted);font-weight:700}
+  .rowcard .rm{position:absolute;top:5px;right:30px;border:none;background:none;color:var(--danger);cursor:pointer;font-size:18px;line-height:1;padding:4px}
+  .mini{display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;align-items:end}
+  .cap{font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px}
+  .date-in,.time-in{display:flex;align-items:center;gap:5px}
+  .date-in input{width:56px;text-align:center}
+  .time-in input{flex:1;min-width:0}
+  .rowcard select,.rowcard input{font:inherit;padding:9px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;min-height:42px}
+  .type-sel,.subj{width:100%}
+  .full{grid-column:1/-1}
+  .cardfoot{margin-top:9px;display:flex;justify-content:flex-end}
+  .dup{font:inherit;font-size:12px;font-weight:600;border:1px dashed var(--accent-2);color:var(--accent-2);
+    background:#fff;border-radius:7px;padding:6px 10px;cursor:pointer}
+  .dup:hover{background:var(--accent-soft)}
+  .copybar{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
+  .copybar .tally{font-size:12px;color:var(--muted);margin-left:auto}
+
+  .cblock{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fbfcfd;margin-bottom:9px}
+  .cblock .subjrow{margin-bottom:8px}
+  .cnts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .cnts .c label{font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:3px;text-align:center}
+  .cnts .c input{width:100%;text-align:center;font:inherit;padding:9px 4px;border:1px solid var(--line);border-radius:6px;min-height:42px}
+  .cblock input.csubj{width:100%;font:inherit;padding:9px 8px;border:1px solid var(--line);border-radius:6px;min-height:42px}
+
+  .previewwrap{padding:24px;display:flex;justify-content:center;overflow:auto}
+  .hint{font-size:11px;color:var(--muted);text-align:center;margin-bottom:11px}
+
+  .sheet{position:relative;width:210mm;min-height:297mm;background:#fff;color:#000;padding:16mm 15mm;
+    box-shadow:0 6px 30px rgba(20,30,50,.18);
+    font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;display:none}
+  .sheet.active{display:block}
+
+  .clinichead{position:absolute;top:14mm;right:15mm;text-align:right;font-size:9.5pt;line-height:1.6;max-width:80mm}
+  .clinichead .cdate{margin-bottom:1mm}
+
+  .dept{text-align:center;font-size:20pt;letter-spacing:.15em;margin:0 0 2mm;padding-top:6mm}
+  .doctitle{text-align:center;font-size:19pt;letter-spacing:.08em;margin:0 0 9mm;font-weight:600}
+  .doctitle .mon{display:inline-block;min-width:2.4em;border-bottom:1px solid #000;text-align:center;font-weight:700}
+  .metarow{display:flex;gap:14mm;margin:0 0 6mm;font-size:12pt}
+  .metarow .m{display:flex;align-items:flex-end;gap:6px;flex:1}
+  .metarow .m .lb{white-space:nowrap}
+  .metarow .m .val{flex:1;border-bottom:1px solid #000;min-height:1.4em;padding:0 4px 1px;text-align:center}
+
+  table.rep{width:100%;border-collapse:collapse;table-layout:fixed}
+  table.rep th,table.rep td{border:1px solid var(--sheet-rule);padding:2.6mm 2mm;font-size:11pt;text-align:center;vertical-align:middle}
+  table.rep col.c-date{width:22%}
+  table.rep col.c-type{width:34%}
+  table.rep col.c-time{width:26%}
+  table.rep col.c-subj{width:18%}
+  .type-line{letter-spacing:.02em;white-space:nowrap}
+  .circled{position:relative;padding:0 1px;font-weight:700}
+  .circled::before{content:"";position:absolute;inset:-1.4mm -2.2mm;border:.5mm solid #000;border-radius:50%;transform:rotate(-4deg)}
+  .time-cell .sep{padding:0 3px}
+  .empty td{height:9mm}
+  .foot{margin-top:6mm;font-size:9.5pt;line-height:1.7}
+  .foot p{margin:0}
+
+  table.count{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:4mm}
+  table.count th,table.count td{border:1px solid var(--sheet-rule);font-size:11pt;text-align:center;vertical-align:middle}
+  table.count th{padding:3mm 2mm;font-weight:600}
+  table.count col.k-subj{width:22%}
+  table.count col.k-cnt{width:48%}
+  table.count col.k-sign{width:30%}
+  table.count td.subjcell{font-size:12pt}
+  td.cntcell{padding:0}
+  .cntline{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;padding:2.4mm 5mm 2.4mm 8mm}
+  .cntline .num{min-width:2.2em;text-align:center;border-bottom:1px solid #000;font-weight:700}
+
+  @media (max-width:1020px){
+    .sheet{width:100%;min-height:auto;padding:9mm 6mm;box-shadow:0 3px 14px rgba(20,30,50,.15)}
+    .clinichead{top:8mm;right:6mm;font-size:8pt;max-width:55%}
+    .previewwrap{padding:12px}
+    .panel{min-height:auto;border-right:none;border-bottom:1px solid var(--line)}
+    .metarow{gap:6mm}.dept{font-size:16pt;padding-top:8mm}.doctitle{font-size:15pt}
+  }
+
+  @page{size:A4 portrait;margin:0}
+  @media print{
+    body{background:#fff}
+    .topbar,.tabs,.panel,.hint{display:none !important}
+    .layout{display:block}
+    .previewwrap{padding:0;overflow:visible}
+    .sheet{display:none !important;width:210mm;min-height:297mm;box-shadow:none;padding:16mm 15mm}
+    .clinichead{top:14mm;right:15mm;font-size:9.5pt;max-width:80mm}
+    body.print-pair #sheet-done,body.print-pair #sheet-plan{display:block !important;break-after:page}
+    body.print-pair #sheet-plan{break-after:auto}
+    body.print-count #sheet-count{display:block !important}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <b>個別指導部　帳票作成</b>
+      <span>回数報告書（月初）／実施報告書・授業予定（月末・裏表）</span>
+    </div>
+    <button class="btn ghost" id="btnLoad">読み込む</button>
+    <button class="btn ghost" id="btnSave">書き出す</button>
+    <button class="btn primary" id="btnPrint">印刷</button>
+    <input type="file" id="fileIn" accept="application/json" hidden>
+  </div>
+
+  <div class="tabs">
+    <button class="tab" data-tab="count">回数報告書</button>
+    <button class="tab active" data-tab="done">実施報告書</button>
+    <button class="tab" data-tab="plan">授業予定</button>
+  </div>
+
+  <div class="layout">
+    <section class="panel" id="panel"></section>
+    <section class="previewwrap">
+      <div>
+        <div class="hint" id="hint"></div>
+        <div class="sheet" id="sheet-count"></div>
+        <div class="sheet active" id="sheet-done"></div>
+        <div class="sheet" id="sheet-plan"></div>
+      </div>
+    </section>
+  </div>
+
+<script>
+const TYPES=["通常","定期対策","振替(前月分)"];
+function todayISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+const state={
+  month:"",student:"",teacher:"",dept:"中等部",
+  clinicName:"",manager:"",tel:"",submitDate:todayISO(),
+  doneRows:[],planRows:[],countBlocks:[],
+  activeTab:"done"
+};
+function blankRow(){return{m:"",d:"",type:"通常",start:"",end:"",subject:""};}
+function blankCount(){return{subject:"",通常:"",持ち越し:"",定期対策:""};}
+for(let i=0;i<6;i++) state.doneRows.push(blankRow());
+for(let i=0;i<6;i++) state.planRows.push(blankRow());
+for(let i=0;i<5;i++) state.countBlocks.push(blankCount());
+
+const panel=document.getElementById("panel");
+const esc=s=>(s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function fmtDate(iso){if(!iso)return"";const[y,m,d]=iso.split("-");if(!y||!m||!d)return"";return `${y}年 ${+m}月 ${+d}日`;}
+function rowFilled(r){return r.m||r.d||r.start||r.end||(r.subject&&r.subject.trim())||r.type!=="通常";}
+function lessonCount(list){return list.filter(rowFilled).length;}
+
+/* ---------- panel ---------- */
+function metaHTML(){
+  return `<h2>基本情報（3枚共通）</h2>
+   <div class="meta-grid">
+     <div class="field"><label>対象月</label>
+       <div class="date-in"><input id="m-month" type="number" min="1" max="12" value="${esc(state.month)}" placeholder="8"> 月</div></div>
+     <div class="field"><label>生徒名</label><input id="m-student" type="text" value="${esc(state.student)}" placeholder="山田 太郎"></div>
+     <div class="field full"><label>講師名</label><input id="m-teacher" type="text" value="${esc(state.teacher)}" placeholder="近大 花子"></div>
+   </div>
+   <details class="settings">
+     <summary>塾情報・提出日（各紙の右上に印刷 ／ 一度入れれば全部に反映）</summary>
+     <div class="body">
+       <div class="field"><label>提出日</label><input id="s-date" type="date" value="${esc(state.submitDate)}"></div>
+       <div class="field"><label>塾名</label><input id="s-clinic" type="text" value="${esc(state.clinicName)}" placeholder="例）○○塾 △△校"></div>
+       <div class="field"><label>責任者名</label><input id="s-manager" type="text" value="${esc(state.manager)}" placeholder="例）教室 太郎"></div>
+       <div class="field"><label>電話番号</label><input id="s-tel" type="text" value="${esc(state.tel)}" placeholder="例）06-0000-0000"></div>
+     </div>
+   </details>`;
+}
+function rowsEditorHTML(k,title){
+  const other = k==="doneRows" ? {key:"planRows",label:"授業予定"} : {key:"doneRows",label:"実施報告書"};
+  const cards=state[k].map((r,i)=>`
+    <div class="rowcard">
+      <span class="no">${i+1}</span>
+      <button class="rm" data-rm="${i}" data-k="${k}" title="削除">×</button>
+      <div class="mini">
+        <div><span class="cap">日付</span>
+          <div class="date-in">
+            <input type="number" min="1" max="12" value="${esc(r.m)}" data-k="${k}" data-f="m" data-i="${i}"> 月
+            <input type="number" min="1" max="31" value="${esc(r.d)}" data-k="${k}" data-f="d" data-i="${i}"> 日
+          </div></div>
+        <div><span class="cap">授業の種類</span>
+          <select class="type-sel" data-k="${k}" data-f="type" data-i="${i}">
+            ${TYPES.map(t=>`<option ${t===r.type?"selected":""}>${t}</option>`).join("")}
+          </select></div>
+        <div class="full"><span class="cap">時間帯</span>
+          <div class="time-in">
+            <input type="time" value="${esc(r.start)}" data-k="${k}" data-f="start" data-i="${i}">
+            <span>〜</span>
+            <input type="time" value="${esc(r.end)}" data-k="${k}" data-f="end" data-i="${i}">
+          </div></div>
+        <div class="full"><span class="cap">授業科目</span>
+          <input class="subj" type="text" value="${esc(r.subject)}" placeholder="英語 / 数学 …" data-k="${k}" data-f="subject" data-i="${i}"></div>
+      </div>
+      <div class="cardfoot"><button class="dup" data-dup="${i}" data-k="${k}">＋この行を複製（日付以外をコピー）</button></div>
+    </div>`).join("");
+  return `<h2 style="margin-top:20px">${title}</h2>
+    <div class="copybar">
+      <button class="btn ghost" id="btnCopyFrom" data-from="${other.key}" data-to="${k}">${other.label}からコピー</button>
+      <span class="tally">入力済み ${lessonCount(state[k])} 回</span>
+    </div>
+    <div class="note">1行入れて「複製」→ 日付だけ変える、が速いです。予定と実施が同じなら上のコピーで丸ごと写せます。</div>
+    <div class="rows">${cards}</div>
+    <button class="btn" id="btnAdd" data-k="${k}" style="margin-top:12px">＋ 空の行を追加</button>`;
+}
+function countEditorHTML(){
+  const blocks=state.countBlocks.map((b,i)=>`
+    <div class="cblock">
+      <div class="subjrow"><span class="cap">科目</span>
+        <input class="csubj" type="text" value="${esc(b.subject)}" placeholder="英語 / 数学 …" data-cb="${i}" data-cf="subject"></div>
+      <div class="cnts">
+        <div class="c"><label>通常</label><input type="number" min="0" value="${esc(b.通常)}" data-cb="${i}" data-cf="通常"></div>
+        <div class="c"><label>持ち越し</label><input type="number" min="0" value="${esc(b.持ち越し)}" data-cb="${i}" data-cf="持ち越し"></div>
+        <div class="c"><label>定期対策</label><input type="number" min="0" value="${esc(b.定期対策)}" data-cb="${i}" data-cf="定期対策"></div>
+      </div>
+    </div>`).join("");
+  return `<h2 style="margin-top:20px">回数報告書（月初の想定回数）</h2>
+    <div class="note">月初に出す「今月これくらい」の想定回数です。実施報告書とは別に手入力します（実績とズレてもOK）。生徒署名欄は印刷後に記入。</div>
+    <div class="field"><label>部門（見出し）</label><input id="m-dept" type="text" value="${esc(state.dept)}" placeholder="中等部"></div>
+    ${blocks}`;
+}
+
+function renderPanel(){
+  let html=metaHTML();
+  if(state.activeTab==="done") html+=rowsEditorHTML("doneRows","実施した授業（実績）");
+  else if(state.activeTab==="plan") html+=rowsEditorHTML("planRows","予定の授業");
+  else html+=countEditorHTML();
+  panel.innerHTML=html; bindPanel();
+}
+function bindPanel(){
+  const bindMeta=(id,key)=>{const el=document.getElementById(id);if(el)el.addEventListener("input",()=>{state[key]=el.value;renderSheets();});};
+  bindMeta("m-month","month");bindMeta("m-student","student");bindMeta("m-teacher","teacher");bindMeta("m-dept","dept");
+  bindMeta("s-date","submitDate");bindMeta("s-clinic","clinicName");bindMeta("s-manager","manager");bindMeta("s-tel","tel");
+
+  panel.querySelectorAll("[data-f]").forEach(el=>{
+    const ev=(el.tagName==="SELECT")?"change":"input";
+    el.addEventListener(ev,e=>{const k=e.target.dataset.k,i=+e.target.dataset.i,f=e.target.dataset.f;state[k][i][f]=e.target.value;
+      if(f==="subject"||f==="type"||f==="start"||f==="end"||f==="m"||f==="d"){updateTally(k);}
+      renderSheets();});
+  });
+  panel.querySelectorAll("[data-cf]").forEach(el=>{
+    el.addEventListener("input",e=>{const i=+e.target.dataset.cb,f=e.target.dataset.cf;state.countBlocks[i][f]=e.target.value;renderSheets();});
+  });
+  panel.querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",e=>{
+    const k=e.currentTarget.dataset.k,i=+e.currentTarget.dataset.rm;
+    state[k].splice(i,1); if(state[k].length===0) state[k].push(blankRow());
+    renderPanel();renderSheets();
+  }));
+  panel.querySelectorAll("[data-dup]").forEach(b=>b.addEventListener("click",e=>{
+    const k=e.currentTarget.dataset.k,i=+e.currentTarget.dataset.dup;
+    state[k].splice(i+1,0,{...state[k][i],m:"",d:""});
+    renderPanel();renderSheets();
+  }));
+  const add=document.getElementById("btnAdd");
+  if(add) add.addEventListener("click",()=>{state[add.dataset.k].push(blankRow());renderPanel();renderSheets();});
+  const cp=document.getElementById("btnCopyFrom");
+  if(cp) cp.addEventListener("click",()=>{
+    const from=cp.dataset.from,to=cp.dataset.to;
+    if(lessonCount(state[to])>0 && !confirm("今の入力を上書きしてコピーします。よろしいですか？")) return;
+    state[to]=state[from].map(r=>({...r}));
+    renderPanel();renderSheets();
+  });
+}
+function updateTally(k){
+  const el=panel.querySelector(".tally");
+  if(el && ((k==="doneRows"&&state.activeTab==="done")||(k==="planRows"&&state.activeTab==="plan")))
+    el.textContent=`入力済み ${lessonCount(state[k])} 回`;
+}
+
+/* ---------- sheets ---------- */
+function clinicHead(){
+  const lines=[];
+  if(state.submitDate) lines.push(`<div class="cdate">提出日　${esc(fmtDate(state.submitDate))}</div>`);
+  if(state.clinicName) lines.push(`<div>${esc(state.clinicName)}</div>`);
+  if(state.manager) lines.push(`<div>責任者　${esc(state.manager)}</div>`);
+  if(state.tel) lines.push(`<div>TEL　${esc(state.tel)}</div>`);
+  return lines.length?`<div class="clinichead">${lines.join("")}</div>`:"";
+}
+function typeLine(sel){return TYPES.map(t=>t===sel?`<span class="circled">${t}</span>`:t).join("・");}
+function lessonSheet(list,title,footHTML,minRows){
+  const rows=list.map(r=>`
+    <tr><td class="cell-date"><span>${esc(r.m)}</span> 月 <span>${esc(r.d)}</span> 日</td>
+      <td class="type-line">${typeLine(r.type)}</td>
+      <td><span class="time-cell">${esc(r.start)}<span class="sep">〜</span>${esc(r.end)}</span></td>
+      <td>${esc(r.subject)}</td></tr>`).join("");
+  const pad=Math.max(0,minRows-list.length);
+  const empties=Array.from({length:pad}).map(()=>`
+    <tr class="empty"><td>　月　　日</td><td class="type-line">通常・定期対策・振替(前月分)</td><td>　：　〜　：　</td><td></td></tr>`).join("");
+  return `${clinicHead()}
+    <div class="dept">個別指導部</div>
+    <div class="doctitle">${title}</div>
+    <div class="metarow">
+      <div class="m"><span class="lb">生徒名</span><span class="val">${esc(state.student)}</span></div>
+      <div class="m"><span class="lb">講師名</span><span class="val">${esc(state.teacher)}</span></div>
+    </div>
+    <table class="rep">
+      <colgroup><col class="c-date"><col class="c-type"><col class="c-time"><col class="c-subj"></colgroup>
+      <thead><tr><th>日付</th><th>授業の種類</th><th>時間帯</th><th>授業科目</th></tr></thead>
+      <tbody>${rows}${empties}</tbody></table>
+    <div class="foot">${footHTML}</div>`;
+}
+function countSheet(){
+  const blocks=state.countBlocks.slice(0,5);
+  while(blocks.length<5) blocks.push(blankCount());
+  const body=blocks.map(b=>{
+    const line=(lab,val)=>`<div class="cntline"><span class="lab">${lab}</span><span class="num">${val===""||val==null?"":esc(String(val))}</span><span class="unit">回</span></div>`;
+    return `<tr><td class="subjcell" rowspan="3">${esc(b.subject)}</td><td class="cntcell">${line("通常",b.通常)}</td><td rowspan="3"></td></tr>
+      <tr><td class="cntcell">${line("持ち越し",b.持ち越し)}</td></tr>
+      <tr><td class="cntcell">${line("定期対策",b.定期対策)}</td></tr>`;
+  }).join("");
+  return `${clinicHead()}
+    <div class="doctitle" style="margin-top:8mm">${esc(state.dept)}<span class="mon">${esc(state.month)}</span> 月度　授業回数報告書</div>
+    <table class="count">
+      <colgroup><col class="k-subj"><col class="k-cnt"><col class="k-sign"></colgroup>
+      <thead><tr><th>科目</th><th>授業回数</th><th>生徒署名欄</th></tr></thead>
+      <tbody>${body}</tbody></table>
+    <div class="foot" style="margin-top:8mm"><p>※　授業に遅刻または欠席をされる場合は、必ず担当講師まで連絡をお願いします。</p></div>`;
+}
+function renderSheets(){
+  const mon=`<span class="mon">${esc(state.month)}</span>`;
+  document.getElementById("sheet-done").innerHTML=lessonSheet(state.doneRows,`${mon} 月分　実施報告書`,
+    `<p>※「授業の種類」における「振替(前月分)」は前月からの持ち越しです。</p><p>　また、ご不明な点がございましたら、事務所にお問い合わせください。</p>`,15);
+  document.getElementById("sheet-plan").innerHTML=lessonSheet(state.planRows,`${mon} 月　授業予定`,
+    `<p>※　ご都合が合わない日程がありましたら、事務所にお問い合わせください。</p>`,11);
+  document.getElementById("sheet-count").innerHTML=countSheet();
+  ["count","done","plan"].forEach(t=>document.getElementById("sheet-"+t).classList.toggle("active",t===state.activeTab));
+}
+
+/* ---------- tabs / print / validation ---------- */
+const hintEl=document.getElementById("hint");
+const btnPrint=document.getElementById("btnPrint");
+function updateContextUI(){
+  if(state.activeTab==="count"){
+    hintEl.textContent="▼ 回数報告書（月初）／このタブで印刷すると1枚だけ出ます";
+    btnPrint.textContent="印刷（回数報告書）";
+  }else{
+    hintEl.textContent="▼ 実施＝表・授業予定＝裏／このタブで印刷すると2枚出ます（両面印刷で1枚両面に）";
+    btnPrint.textContent="印刷（実施＋予定）";
+  }
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
+  state.activeTab=b.dataset.tab;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));
+  renderPanel();renderSheets();updateContextUI();
+}));
+
+function validate(lists){
+  const warn=[];
+  lists.forEach(({list,label})=>{
+    list.forEach((r,i)=>{
+      if(!rowFilled(r)) return;
+      if(!r.m||!r.d) warn.push(`・${label} ${i+1}行目：日付が未入力`);
+      if(r.start&&r.end&&r.start>=r.end) warn.push(`・${label} ${i+1}行目：終了が開始より前`);
+    });
+  });
+  return warn;
+}
+btnPrint.addEventListener("click",()=>{
+  const lists = state.activeTab==="count" ? [] :
+    [{list:state.doneRows,label:"実施報告書"},{list:state.planRows,label:"授業予定"}];
+  const warn=validate(lists);
+  if(warn.length && !confirm("入力に気になる点があります：\n\n"+warn.join("\n")+"\n\nこのまま印刷しますか？")) return;
+  document.body.classList.remove("print-pair","print-count");
+  document.body.classList.add(state.activeTab==="count"?"print-count":"print-pair");
+  window.print();
+});
+window.addEventListener("afterprint",()=>document.body.classList.remove("print-pair","print-count"));
+
+/* ---------- save / load ---------- */
+document.getElementById("btnSave").addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=`帳票_${(state.student||"生徒").trim()}_${(state.month||"").trim()}月.json`;
+  a.click();URL.revokeObjectURL(a.href);
+});
+document.getElementById("btnLoad").addEventListener("click",()=>document.getElementById("fileIn").click());
+document.getElementById("fileIn").addEventListener("change",e=>{
+  const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{
+    const d=JSON.parse(rd.result);
+    ["month","student","teacher","dept","clinicName","manager","tel","submitDate"].forEach(key=>{ if(d[key]!=null) state[key]=d[key]; });
+    state.doneRows=(Array.isArray(d.doneRows)&&d.doneRows.length)?d.doneRows.map(r=>({...blankRow(),...r})):[blankRow()];
+    state.planRows=(Array.isArray(d.planRows)&&d.planRows.length)?d.planRows.map(r=>({...blankRow(),...r})):[blankRow()];
+    state.countBlocks=(Array.isArray(d.countBlocks)&&d.countBlocks.length)?d.countBlocks.map(b=>({...blankCount(),...b})):[blankCount(),blankCount(),blankCount(),blankCount(),blankCount()];
+    renderPanel();renderSheets();
+  }catch(err){alert("読み込みに失敗しました。JSONファイルを確認してください。");}};
+  rd.readAsText(f);e.target.value="";
+});
+
+/* init */
+renderPanel();renderSheets();updateContextUI();
+</script>
+</body>
+</html>
