@@ -1,7 +1,17 @@
-import type { ClinicInfo, CountBlock, LessonRow, Roster, RosterEntry, RowsKey, StudentSheet } from "../types";
+import type {
+  ClinicInfo,
+  CountBlock,
+  LessonRow,
+  Roster,
+  RosterEntry,
+  RowsKey,
+  StudentSheet,
+  WeeklySlot,
+} from "../types";
 import { blankRow, cloneRows, duplicateRow, nextMonth, removeRow } from "../lib/rows";
 import { newEntry } from "../lib/normalize";
 import { advanceSheet } from "../lib/students";
+import { blankSlot, generatePlanRows, parseISODate } from "../lib/schedule";
 
 type MetaKey = "month" | "planMonth" | "student" | "teacher" | "dept" | "submitDate";
 
@@ -21,7 +31,11 @@ export type Action =
   | { type: "setClinicAll"; clinic: ClinicInfo }
   | { type: "replaceAll"; roster: Roster }
   | { type: "advanceMonth"; ids: string[]; today: string }
-  | { type: "importSheets"; replace: { id: string; sheet: StudentSheet }[]; add: StudentSheet[] };
+  | { type: "importSheets"; replace: { id: string; sheet: StudentSheet }[]; add: StudentSheet[] }
+  | { type: "addSlot" }
+  | { type: "setSlot"; index: number; field: keyof WeeklySlot; value: string }
+  | { type: "removeSlot"; index: number }
+  | { type: "fillPlanFromSchedule"; today: string };
 
 export function activeEntry(r: Roster): RosterEntry {
   return r.entries.find((e) => e.id === r.activeId) ?? r.entries[0];
@@ -105,6 +119,22 @@ export function rosterReducer(r: Roster, a: Action): Roster {
       });
       return { ...r, entries: [...entries, ...a.add.map((s) => newEntry(s))] };
     }
+    case "addSlot":
+      return updateActive(r, (s) => ({ ...s, schedule: [...s.schedule, blankSlot()] }));
+    case "setSlot":
+      return updateActive(r, (s) => ({
+        ...s,
+        schedule: s.schedule.map((x, i) =>
+          i === a.index ? { ...x, [a.field]: a.field === "weekday" ? Number(a.value) : a.value } : x,
+        ),
+      }));
+    case "removeSlot":
+      return updateActive(r, (s) => ({ ...s, schedule: s.schedule.filter((_, i) => i !== a.index) }));
+    case "fillPlanFromSchedule":
+      return updateActive(r, (s) => {
+        const rows = generatePlanRows(s.schedule, s.planMonth, parseISODate(a.today));
+        return rows.length ? { ...s, planRows: rows } : s;
+      });
     case "advanceMonth": {
       const ids = new Set(a.ids);
       const now = new Date().toISOString();

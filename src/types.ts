@@ -20,6 +20,14 @@ export type CountBlock = {
   定期対策: string;
 };
 
+/** いつもの授業（毎週の決まったコマ）。weekday は 0=日 … 6=土 */
+export type WeeklySlot = {
+  weekday: number;
+  start: string; // "HH:MM"
+  end: string; // "HH:MM"
+  subject: string;
+};
+
 /** 各紙の右上に印刷する塾情報。教室で共通なのでロスター単位で1つだけ持つ */
 export type ClinicInfo = {
   clinicName: string;
@@ -40,6 +48,8 @@ export type SheetData = ClinicInfo & {
   doneRows: LessonRow[]; // 実施報告書
   planRows: LessonRow[]; // 授業予定
   countBlocks: CountBlock[]; // 回数報告書（5枠）
+  /** いつもの授業。授業予定の自動作成に使う（SPECからの拡張・印刷はしない） */
+  schedule: WeeklySlot[];
 };
 
 /** 生徒1人分の帳票。塾情報はロスター側に持つので除く */

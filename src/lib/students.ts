@@ -3,6 +3,7 @@
 import type { RosterEntry, StudentSheet } from "../types";
 import { blankRow, cloneRows, lessonCount, MAX_ROWS_PER_PAGE, nextMonth } from "./rows";
 import { validateRows } from "./validate";
+import { generatePlanRows, parseISODate } from "./schedule";
 
 export const NO_TEACHER = "（講師未入力）";
 
@@ -63,19 +64,22 @@ export function studentStatus(sheet: StudentSheet): StudentStatus {
 
 /**
  * 月替わり：対象月を翌月にし、先月の授業予定を今月の実施報告書のたたき台に移す。
- * 授業予定は空に、回数報告書は科目だけ残して回数を空に、提出日は今日にする。
+ * 授業予定は、いつもの授業が登録されていれば曜日から作り、無ければ空にする。
+ * 回数報告書は科目だけ残して回数を空に、提出日は今日にする。
  * 対象月が読めない場合は null（進められない）。
  */
 export function advanceSheet(sheet: StudentSheet, today: string): StudentSheet | null {
   const month = nextMonth(sheet.month);
   if (!month) return null;
+  const planMonth = nextMonth(month);
+  const generated = generatePlanRows(sheet.schedule, planMonth, parseISODate(today));
   return {
     ...sheet,
     month,
-    planMonth: nextMonth(month),
+    planMonth,
     submitDate: today,
     doneRows: lessonCount(sheet.planRows) ? cloneRows(sheet.planRows) : Array.from({ length: 6 }, blankRow),
-    planRows: Array.from({ length: 6 }, blankRow),
+    planRows: generated.length ? generated : Array.from({ length: 6 }, blankRow),
     countBlocks: sheet.countBlocks.map((b) => ({ subject: b.subject, 通常: "", 持ち越し: "", 定期対策: "" })),
   };
 }

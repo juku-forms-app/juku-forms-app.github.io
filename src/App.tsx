@@ -23,6 +23,7 @@ import { RosterBar } from "./components/RosterBar";
 import { MetaForm } from "./components/panel/MetaForm";
 import { LessonRowsEditor } from "./components/panel/LessonRowsEditor";
 import { CountEditor } from "./components/panel/CountEditor";
+import { ScheduleEditor } from "./components/panel/ScheduleEditor";
 import { Sheets } from "./components/sheets/Sheets";
 import { BatchPrint, type PrintJob } from "./components/sheets/BatchPrint";
 import { StudentList } from "./components/StudentList";
@@ -336,6 +337,7 @@ export default function App() {
             {tab === "done" && (
               <LessonRowsEditor list="doneRows" rows={sheet.doneRows} otherRows={sheet.planRows} dispatch={dispatch} />
             )}
+            {tab === "plan" && <ScheduleEditor sheet={sheet} dispatch={dispatch} />}
             {tab === "plan" && (
               <LessonRowsEditor list="planRows" rows={sheet.planRows} otherRows={sheet.doneRows} dispatch={dispatch} />
             )}

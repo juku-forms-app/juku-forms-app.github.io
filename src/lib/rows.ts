@@ -42,6 +42,7 @@ export function blankSheet(): StudentSheet {
     doneRows: Array.from({ length: 6 }, blankRow),
     planRows: Array.from({ length: 6 }, blankRow),
     countBlocks: Array.from({ length: COUNT_BLOCK_SLOTS }, blankCount),
+    schedule: [],
   };
 }
 

@@ -1,7 +1,7 @@
 // localStorage や JSONファイルなど、外から来たデータを型どおりの形に整える。
 // 欠けた項目は既定値で埋め、型の合わない値は捨てる（壊れたデータでアプリが落ちないように）。
 
-import type { ClinicInfo, CountBlock, LessonRow, Roster, RosterEntry, StudentSheet } from "../types";
+import type { ClinicInfo, CountBlock, LessonRow, Roster, RosterEntry, StudentSheet, WeeklySlot } from "../types";
 import { blankCount, blankRow, blankSheet, COUNT_BLOCK_SLOTS, isLessonType, nextMonth, normMonth } from "./rows";
 import { newId } from "./id";
 
@@ -27,6 +27,17 @@ function normalizeRow(v: unknown): LessonRow {
 function normalizeCount(v: unknown): CountBlock {
   if (!isObj(v)) return blankCount();
   return { subject: str(v.subject), 通常: str(v.通常), 持ち越し: str(v.持ち越し), 定期対策: str(v.定期対策) };
+}
+
+function normalizeSlot(v: unknown): WeeklySlot | null {
+  if (!isObj(v)) return null;
+  const wd = Number(v.weekday);
+  return {
+    weekday: Number.isInteger(wd) && wd >= 0 && wd <= 6 ? wd : 1,
+    start: str(v.start),
+    end: str(v.end),
+    subject: str(v.subject),
+  };
 }
 
 function rowsOrBlank(v: unknown): LessonRow[] {
@@ -55,6 +66,7 @@ export function normalizeSheet(v: unknown): StudentSheet {
     doneRows: rowsOrBlank(v.doneRows),
     planRows: rowsOrBlank(v.planRows),
     countBlocks: blocks,
+    schedule: Array.isArray(v.schedule) ? v.schedule.map(normalizeSlot).filter((s): s is WeeklySlot => s !== null) : [],
   };
 }
 

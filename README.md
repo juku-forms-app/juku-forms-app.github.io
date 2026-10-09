@@ -45,6 +45,7 @@ src/
   lib/storage.ts           localStorage 保存（版付きキー、壊れたデータの退避）
   lib/jsonio.ts            JSON 書き出し／読み込み・送る（共有）
   lib/students.ts          生徒一覧の集計・絞り込み・翌月へ進める
+  lib/schedule.ts          いつもの授業（曜日・時間）から授業予定を作る
   state/rosterReducer.ts   全操作を reducer に集約
   state/useRoster.ts       自動保存・別タブ変更の検知
   components/StudentList   生徒一覧（まとめて印刷・送る・翌月へ進める）
