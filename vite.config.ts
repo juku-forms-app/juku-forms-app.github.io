@@ -11,8 +11,10 @@ export default defineConfig({
     react(),
     // ホーム画面に追加して使えるようにする（オフラインでも起動、iOS で保存データが消されにくくなる）。
     // 置くのはアプリ本体だけで、生徒のデータは端末の localStorage から外に出ない。
+    // 更新は「新しい版があります［更新する］」で利用者が切り替える（src/components/UpdateBanner.tsx）
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
+      injectRegister: false,
       includeAssets: ["icon.svg", "apple-touch-icon.png"],
       manifest: {
         name: "個別指導部 帳票作成",

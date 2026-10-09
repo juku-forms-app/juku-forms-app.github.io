@@ -28,6 +28,7 @@ import { Sheets } from "./components/sheets/Sheets";
 import { BatchPrint, type PrintJob } from "./components/sheets/BatchPrint";
 import { StudentList } from "./components/StudentList";
 import { useDialog } from "./components/Dialog";
+import { UpdateBanner } from "./components/UpdateBanner";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "list", label: "生徒一覧" },
@@ -276,6 +277,7 @@ export default function App() {
           )}
           <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={onFile} />
         </div>
+        <UpdateBanner />
         {loadWarning && (
           <div className="banner">
             {loadWarning}

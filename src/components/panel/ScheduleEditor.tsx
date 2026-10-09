@@ -2,7 +2,7 @@ import { useState, type Dispatch } from "react";
 import type { StudentSheet, WeeklySlot } from "../../types";
 import type { Action } from "../../state/rosterReducer";
 import { lessonCount, todayISO } from "../../lib/rows";
-import { usableSlots, WEEKDAYS } from "../../lib/schedule";
+import { generatePlan, usableSlots, WEEKDAYS } from "../../lib/schedule";
 import { useDialog } from "../Dialog";
 
 /** いつもの授業（曜日・時間）の登録と、そこから授業予定を作るボタン */
@@ -13,6 +13,9 @@ export function ScheduleEditor({ sheet, dispatch }: { sheet: StudentSheet; dispa
   const month = sheet.planMonth.trim();
   // 未登録なら開いて見せ、登録済みなら畳んでおく（生徒を切り替えると入力パネルごと作り直されるので、そのときに決め直す）
   const [initiallyOpen] = useState(() => sheet.schedule.length === 0);
+  // その月の祝日のうち、いつもの授業の曜日にあたる日（予定を作るときに自動で外す日）。
+  // 状態として持たず毎回計算するので、「翌月へ進める」で作られた予定でも表示される
+  const { skipped } = generatePlan(sheet.schedule, month, new Date());
 
   const fill = async () => {
     if (!month) {
@@ -92,6 +95,13 @@ export function ScheduleEditor({ sheet, dispatch }: { sheet: StudentSheet; dispa
             この内容で{month || "－"}月の予定を作る
           </button>
         </div>
+        {skipped.length > 0 && (
+          <p className="holiday-note">
+            祝日のため外す日：{skipped.map((h) => `${h.m}/${h.d}（${h.name}）`).join("、")}
+            <br />
+            祝日も授業をする場合は、下の授業予定に行を追加してください。休塾日は行の「×」で消してください。
+          </p>
+        )}
       </div>
     </details>
   );

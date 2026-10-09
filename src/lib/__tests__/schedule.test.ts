@@ -34,13 +34,14 @@ describe("generatePlanRows", () => {
       "10",
       oct9,
     );
-    // 2026年10月：月曜は 5,12,19,26 ／ 木曜は 1,8,15,22,29
+    // 2026年10月：月曜は 5,(12=スポーツの日),19,26 ／ 木曜は 1,8,15,22,29
     expect(rows.slice(0, 3).map((r) => `${r.d} ${r.start} ${r.subject}`)).toEqual([
       "1 17:00 英語",
       "1 19:00 数学",
       "5 16:40 英語",
     ]);
-    expect(rows).toHaveLength(4 + 5 * 2);
+    expect(rows).toHaveLength(3 + 5 * 2);
+    expect(rows.some((r) => r.d === "12" && r.subject === "英語")).toBe(false);
   });
 
   it("何も入っていないコマは無視し、月が読めなければ空", () => {

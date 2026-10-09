@@ -165,3 +165,4 @@ details.schedule{margin-top:16px}
 .slot .slot-subj{grid-column:1/4}
 .slot .rm-slot{grid-column:4;justify-self:end;border:none;background:none;color:var(--danger);cursor:pointer;font-size:18px;padding:4px 8px}
 .slot-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.holiday-note{margin:10px 0 0;font-size:12px;line-height:1.7;color:#7a5a12;background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:8px;padding:8px 10px}
