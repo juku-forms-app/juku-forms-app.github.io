@@ -149,12 +149,11 @@ export default function App() {
       : "";
     if (
       !(await dialog.confirm(
-        `選択中の${ok}人を翌月へ進めます。\n\n・対象月を＋1\n・授業予定 → 実施報告書に移す\n・授業予定は空に、回数報告書は科目だけ残す\n\n今月分は上書きされるので、先に全体バックアップを書き出します。${skip}\n\n進めますか？`,
+        `選択中の${ok}人を翌月へ進めます。\n\n・対象月を＋1\n・授業予定 → 実施報告書に移す\n・新しい授業予定を、いつもの授業から作る（未登録なら空）\n・回数報告書は科目だけ残す\n\n※ 今月の実施報告書は上書きされます。まだ「送る」をしていない場合は、先に送ってください。${skip}\n\n進めますか？`,
         { ok: "翌月へ進める", danger: true },
       ))
     )
       return;
-    downloadText(exportRosterJSON(roster), backupFileName());
     dispatch({ type: "advanceMonth", ids: chosen.map((e) => e.id), today: todayISO() });
   };
 
